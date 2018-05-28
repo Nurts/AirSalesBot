@@ -8,8 +8,8 @@ shortener_url = 'https://www.googleapis.com/urlshortener/v1/url?key=AIzaSyBSNqAN
 translate_url = 'https://translate.yandex.net/api/v1.5/tr.json/translate?'
 translate_key = 'trnsl.1.1.20180414T171052Z.35fa0c867cd681d3.88357a14f07b92e4601ac59f6ab10965a51af354'
 
-error_message = "Sorry! But there is something wrong in your input data!"
-tryagain_message = "Input Error! Please Try again!"
+error_message = "Sorry! But there is something wrong in your input data! (Use the same format as in example)"
+tryagain_message = "Input Error! Please Try again! You should use same format as in Examples"
 
 
 def startMessageGen():
@@ -50,7 +50,7 @@ def homeMessageGen():
     return em9 + "Now you can choose number of passangers and suitable daytime:\n" + em7 + \
            "To add passengers press /addPassengers, please\n" + em7 + \
            "To choose daytime press /choose_time, please\n" + em7 + \
-           "If you are single and the daytime is does not matter for you, press /next"
+           "If you want another ticket, press /next" + "\nPress /start to choose other cities!"
 
 def addPassengersInstructions():
     em11 = emojize(":man:", use_aliases=True)

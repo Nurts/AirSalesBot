@@ -10,7 +10,7 @@ BOLD = '\033[1m'
 END = '\033[0m'
 testingVar = 0
 bot = telebot.TeleBot(constants.token)
-user_markup = telebot.types.ReplyKeyboardMarkup(True, False)
+
 user_database = {}
 
 
@@ -33,13 +33,16 @@ def make_request(user_id):
             answer = "Sorry! But There is no available tickets"
         else:
             answer = jsontoString(req_dict['data'][0])
+            if str(user_id) in user_database:
+                user_database[str(user_id)]['tickets'].clear()
             reqvalue = 1;
             counter = 0;
             for each in req_dict['data']:
                 if counter == 10:
                     break
                 counter += 1
-                user_database[user_id]['tickets'].append(each)
+                if str(user_id) in user_database:
+                    user_database[str(user_id)]['tickets'].append(each)
 
 
     bot.send_message(user_id, answer, parse_mode="Markdown")
@@ -94,13 +97,15 @@ def goo_shorten_url(url):
 
 @bot.message_handler(commands=['start', 'help'])
 def start_function(message):
+    user_markup = telebot.types.ReplyKeyboardMarkup(True, False)
     user_markup.row('/start', '/end')
     msg = bot.send_message(message.from_user.id, constants.startMessageGen(), reply_markup=user_markup, parse_mode="Markdown")
     bot.register_next_step_handler(msg, initial_case_step)
 
 
 def home_buttons(user_id):
-    user_markup.row('/start', '/end', '/addPassengers')
+    user_markup = telebot.types.ReplyKeyboardMarkup(True, False)
+    user_markup.add('/start', '/end', '/addPassengers')
     user_markup.row('/next', '/choose_time')
     bot.send_message(user_id, constants.homeMessageGen(), reply_markup=user_markup)
 
@@ -117,6 +122,7 @@ def end_function(message):
 
 @bot.message_handler(commands=['addPassengers'])
 def handle_text(message):
+    user_markup = telebot.types.ReplyKeyboardMarkup(True, False)
     user_markup.row('/addAdult', '/addChild')
     user_markup.row('/done', '/reset')
     bot.send_message(message.from_user.id, constants.addPassengersInstructions(), reply_markup=user_markup)
@@ -170,16 +176,17 @@ def handle_text(message):
     id = str(message.from_user.id)
     if id in user_database:
         user_database[id]['id']+=1
-        if len(user_database[id]['tickets'] <= user_database[id]['id']):
+        if len(user_database[id]['tickets']) <= user_database[id]['id']:
             pass
         else:
-            answer = json(user_database[id]['tickets'][user_database[id]['id']])
+            answer = jsontoString(user_database[id]['tickets'][user_database[id]['id']])
     bot.send_message(message.from_user.id, answer, parse_mode="Markdown")
 
 
 @bot.message_handler(commands=['choose_time'])
 def choosing_function(message):
     bot.send_chat_action(message.from_user.id, 'typing')
+    user_markup = telebot.types.ReplyKeyboardMarkup(True, False)
     user_markup.row('morning', 'afternoon')
     user_markup.row('evening', 'night')
     user_markup.row('/start', '/end')
@@ -207,6 +214,7 @@ def choose_time_step(message):
             timefrom = '00:00 '
             timeto = '06:00'
         elif len(message.text.split('-')) != 2:
+            bot.send_message(message.from_user.id, constants.error_message + "\nThe daytime was reset!")
             timefrom = '00:00'
             timeto = '00:00'
         else:
@@ -218,7 +226,7 @@ def choose_time_step(message):
         if id in user_database:
             user_database[id]['dtimefrom'] = timefrom
             user_database[id]['dtimeto'] = timeto
-        result = make_request()
+        result = make_request(message.from_user.id)
         if result == 0 and (id in user_database):
                 user_database[id]['dtimefrom'] = '00:00'
                 user_database[id]['dtimeto'] = '00:00'
