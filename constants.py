@@ -2,7 +2,7 @@ from emoji import emojize
 
 # constants
 
-token = "Your Token"
+token = "Token"
 shortener_key = 'Your Key'
 shortener_url = 'https://www.googleapis.com/urlshortener/v1/url?key=' + shortener_key
 translate_url = 'https://translate.yandex.net/api/v1.5/tr.json/translate?'
